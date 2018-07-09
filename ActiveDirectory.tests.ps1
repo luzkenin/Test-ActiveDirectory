@@ -208,31 +208,34 @@ Describe 'Active Directory health checks' -Tags 'ADHC' {
         }
     }
 
-    Context 'Testing local Active Directory TCP ports respond'{
-        # AD Ports: https://technet.microsoft.com/en-us/library/dd772723(v=ws.10).aspx
-        $Ports = @(53,88,135,139,389,445,464,636,3268,3269,9389)
+    foreach($DomainController in $ADGoldConfig.DomainControllers.Name)
+    {
+        Context "Testing Active Directory TCP ports respond on $DomainController"{
+            # AD Ports: https://technet.microsoft.com/en-us/library/dd772723(v=ws.10).aspx
+            $Ports = @(53,88,135,139,389,445,464,636,3268,3269,9389)
 
-        $Ports | foreach-object{
-            it "Port test for TCP $_" {
-                (Test-netconnection -ComputerName $env:COMPUTERNAME -Port $_).TcpTestSucceeded | Should be $true
-            }
-        }
-    
-    }
-
-    Context 'Checking local Active Directory Windows services are running'{
-        $Services = @('ADWS','BITS','CertPropSvc','CryptSvc','Dfs','DFSR','DNS','Dnscache','eventlog','gpsvc','kdc',`
-                      'LanmanServer','LanmanWorkstation','Netlogon','NTDS','NtFrs','RpcEptMapper','RpcSs','SamSs',`
-                      'W32Time')
-
-        $Services | foreach-object{
-            $Svc = get-service $_
-            it "Service: $($Svc.DisplayName)" {
-                $Svc.status | Should be 'Running'
+            $Ports | foreach-object{
+                it "Port test for TCP $_" {
+                    (Test-netconnection -ComputerName $DomainController -Port $_).TcpTestSucceeded | Should be $true
+                }
             }
         }
     }
+    foreach($DomainController in $ADGoldConfig.DomainControllers.Name)
+    {
+        Context "Checking Active Directory Windows services are running on $DomainController"{
+            $Services = @('ADWS','BITS','CertPropSvc','CryptSvc','Dfs','DFSR','DNS','Dnscache','eventlog','gpsvc','kdc',`
+                        'LanmanServer','LanmanWorkstation','Netlogon','NTDS','NtFrs','RpcEptMapper','RpcSs','SamSs',`
+                        'W32Time')
 
+            $Services | foreach-object{
+                $Svc = get-service $_ -ComputerName $DomainController
+                it "Service: $($Svc.DisplayName)" {
+                    $Svc.status | Should be 'Running'
+                }
+            }
+        }
+    }
     Context 'checking DNS LDAP SRV records'{
         $i = 0
         foreach ($entry in $ADGoldConfig.LDAPDNS){
