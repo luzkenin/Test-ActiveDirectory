@@ -237,28 +237,30 @@ Describe 'Active Directory health checks' -Tags 'ADHC' {
         }
     }
     Context 'checking DNS LDAP SRV records'{
+        $LDAPDNS = $ADSnapshot.LDAPDNS | sort name,type
         $i = 0
         foreach ($entry in $ADGoldConfig.LDAPDNS){
                 it "LDAP result entry $i`: $($entry.Type)" {
-                    $entry.Name | Should be ($ADSnapshot.LDAPDNS[$i]).Name
-                    $entry.NameTarget | Should be ($ADSnapshot.LDAPDNS[$i]).NameTarget
-                    $entry.TTL | Should be ($ADSnapshot.LDAPDNS[$i]).TTL
-                    $entry.Port | Should be ($ADSnapshot.LDAPDNS[$i]).Port
-                    $entry.IPAddress | Should be ($ADSnapshot.LDAPDNS[$i]).IPAddress
+                    $entry.Name | Should be ($LDAPDNS[$i]).Name
+                    #$entry.NameTarget | Should be ($LDAPDNS[$i]).NameTarget
+                    $entry.TTL | Should be ($LDAPDNS[$i]).TTL
+                    $entry.Port | Should be ($LDAPDNS[$i]).Port
+                    $entry.IPAddress | Should be ($LDAPDNS[$i]).IPAddress
                 }
                 $i++
             }
     }
 
     Context 'checking DNS Kerberos SRV records'{
+        $KerberosDNS = $ADSnapshot.KerberosDNS | sort name,type
         $i = 0
         foreach ($entry in $ADGoldConfig.KerberosDNS){
                 it "LDAP result entry $i`: $($entry.Type)" {
-                    $entry.Name | Should be ($ADSnapshot.KerberosDNS[$i]).Name
-                    $entry.NameTarget | Should be ($ADSnapshot.KerberosDNS[$i]).NameTarget
-                    $entry.TTL | Should be ($ADSnapshot.KerberosDNS[$i]).TTL
-                    $entry.Port | Should be ($ADSnapshot.KerberosDNS[$i]).Port
-                    $entry.IPAddress | Should be ($ADSnapshot.KerberosDNS[$i]).IPAddress
+                    $entry.Name | Should be ($KerberosDNS[$i]).Name
+                    #$entry.NameTarget | Should be ($KerberosDNS[$i]).NameTarget
+                    $entry.TTL | Should be ($KerberosDNS[$i]).TTL
+                    $entry.Port | Should be ($KerberosDNS[$i]).Port
+                    $entry.IPAddress | Should be ($KerberosDNS[$i]).IPAddress
                 }
                 $i++
             }
